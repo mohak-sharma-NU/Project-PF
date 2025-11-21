@@ -105,29 +105,7 @@ void withdraw(int acc){
     remove("details.csv");
     rename("temp.csv","details.csv");
 
-    // Sleep(1000);
-
-
-    // if(remove("details.csv")!=0){
-    //     printf("Failed to delete details.csv.\n");
-    // }
-
-    // if(rename("temp.csv","details.csv")!=0){
-    //     printf("Failed to rename temp.csv to details.csv.\n");
-    // }
-
-    // // remove("details.csv");
-    // // rename("temp.csv","details.csv");
-
-    // // if (transactionApproved) {
-    // //     printf("\nDeposit Successful! New Balance: %.2f\n",search.balance);
-    // //     // printf("\nDeposit Successful! New Balance: %.2f\n",newBalance);
-
-    // // } else if (accountFound) {
-    // //     // If account found but not approved, the block message was printed inside the loop.
-    // // } else {
-    // //     printf("\nError: Account with ID %d not found in file.\n", acc);
-    // // }
+  
 }
 
 void deposit(int acc){
