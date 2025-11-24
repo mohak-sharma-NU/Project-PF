@@ -18,7 +18,7 @@ struct TransactionLog{
     int accountno;
     float amount;
     char type[10];
-    long timestamp;
+    long long timestamp;
 };
 
 void recordTransaction(int accountno,float amount,const char* type){
@@ -69,21 +69,40 @@ void genReportHrly(){
     struct TransactionLog lentry;
     int count=0;
 
+    printf("\t TRANSACTIONS LAST HOUR \t\n");
+    printf("Time\t\t\tAccount ID\tType\t\tAmount\n");
+
     while(fgets(line,sizeof(line),lptr)){
-        int result = sscanf(line,"%d,%f,%[^,],%ld",
+
+        int result = sscanf(line,"%d,%f,%[^,],%lld",
             &lentry.accountno,
             &lentry.amount,
             lentry.type,
-            lentry.timestamp
+            &lentry.timestamp
         );
 
         if(result!=4) continue;
 
         if(lentry.timestamp>=lastHour){
-            
+            struct tm *localTime = localtime(&lentry.timestamp);
+            char timeStr[20];
+            strftime(timeStr,sizeof(timeStr),"%H : %M : %S",localTime);
+
+            printf("%s\t\t%d\t\t%s\t%.2f\n",
+                timeStr,
+                lentry.accountno,
+                lentry.type,
+                lentry.amount
+            );
+            count++;
         }
     }
 
+    fclose(lptr);
+    printf("\n========================\n");
+    printf("Transactions in the Last Hour: %d\n",count);
+
+    return;
 }
 
 void withdraw(int acc){
@@ -161,6 +180,7 @@ void withdraw(int acc){
     remove("details.csv");
     rename("temp.csv","details.csv");
 
+  
 }
 
 void deposit(int acc){
@@ -233,29 +253,7 @@ void deposit(int acc){
 
     remove("details.csv");
     rename("temp.csv","details.csv");
-    // Sleep(1000);
 
-
-    // if(remove("details.csv")!=0){
-    //     printf("Failed to delete details.csv.\n");
-    // }
-
-    // if(rename("temp.csv","details.csv")!=0){
-    //     printf("Failed to rename temp.csv to details.csv.\n");
-    // }
-
-    // // remove("details.csv");
-    // // rename("temp.csv","details.csv");
-
-    // // if (transactionApproved) {
-    // //     printf("\nDeposit Successful! New Balance: %.2f\n",search.balance);
-    // //     // printf("\nDeposit Successful! New Balance: %.2f\n",newBalance);
-
-    // // } else if (accountFound) {
-    // //     // If account found but not approved, the block message was printed inside the loop.
-    // // } else {
-    // //     printf("\nError: Account with ID %d not found in file.\n", acc);
-    // // }
 }
 
 void userlogin(){
@@ -310,7 +308,7 @@ void userlogin(){
                 withdraw(acc.accountno);
                 break;
             case 0:
-                printf("Logging out as %s.",acc.username);
+                printf("\nLogging out as %s\n",acc.username);
                 break;
             default:
                 printf("Please enter a valid number: ");
@@ -498,7 +496,7 @@ char login(){
     int choice=0;
 
     do{
-        printf("\n1.Admin login.\n2.User login\n0.Exit\nMake your choice: ");
+        printf("\n1.Admin login.\n2.User login\n3.Generate Hourly Reports\n0.Exit\nMake your choice: ");
         scanf("%d",&choice);
         getchar();
         switch(choice){
@@ -511,6 +509,9 @@ char login(){
             case 2:
                 userlogin();
                 break;
+            case 3:
+                genReportHrly();
+                break;
             default:
                 printf("Please enter a value number");
                 break;
@@ -520,17 +521,8 @@ char login(){
 }
 
 int main(){
-    // srand(time(NULL));
+
     login();
+
     return 0;
 }
-/*
-    char name[30];
-
-    printf("Enter your name: ");
-    fgets(name,sizeof(name),stdin);
-
-    name[strcspn(name,"\n")]='\0';
-
-    printf(" Hello %s\n..",name);
-*/
