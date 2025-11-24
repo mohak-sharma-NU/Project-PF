@@ -6,12 +6,12 @@
 
 #define LIMIT 5000
 
-struct Details{
+struct Details{           //details structure for customer information
+    int accountno;
     char username[100];
-    char baseCountries[5];
     int password;
     float balance;
-    int accountno;
+    char baseCountries[5];
 };
 
 struct TransactionLog{
@@ -126,7 +126,7 @@ void withdraw(int acc){
     int transactionApproved = 0; // Flag for successful deposit
     int accountFound = 0;
 
-    float newBalance;
+    //float newBalance;
 
     while(fgets(line,sizeof(line),fptr)){
         int result = sscanf(line,"%d,%[^,],%d,%f,%s",
@@ -150,7 +150,7 @@ void withdraw(int acc){
                     search.balance -= amount;
                     transactionApproved = 1; // Set flag
 
-                    recordTransaction(search.accountno,amount,"DEPOSIT");
+                    recordTransaction(search.accountno,amount,"WITHDRAW");
 
                     // newBalance = search.balance + amount;
                     fprintf(temp,"%d,%s,%d,%f,%s\n",
@@ -204,7 +204,7 @@ void deposit(int acc){
     int transactionApproved = 0; // Flag for successful deposit
     int accountFound = 0;
 
-    float newBalance;
+    //float newBalance;
 
     while(fgets(line,sizeof(line),fptr)){
         int result = sscanf(line,"%d,%[^,],%d,%f,%s",
@@ -253,7 +253,6 @@ void deposit(int acc){
 
     remove("details.csv");
     rename("temp.csv","details.csv");
-
 }
 
 void userlogin(){
@@ -264,9 +263,10 @@ void userlogin(){
     float amount;
 
     printf("\nEnter your Username: ");
+    getchar();
     fgets(username,sizeof(username),stdin);
-    
     username[strcspn(username,"\n")]='\0';
+    
     printf("\nEnter your password: ");
     scanf(" %d",&password);
 
@@ -294,19 +294,26 @@ void userlogin(){
         printf("\nUsername not found\n");
         return;
     }
-
+    
+    fclose(fptr);
+    
     do{
         printf("\n1.Deposit.\n2.Withdraw.\n3.Apply for loan.\n0.Exit.\nEnter your choice: ");
         scanf("%d",&choice);
         switch(choice){
             case 1:
-                fclose(fptr);
                 deposit(acc.accountno);
                 break;
             case 2:
-                fclose(fptr);
                 withdraw(acc.accountno);
                 break;
+            case 3:{
+            	float loan;
+            	printf("\nEnter loan amount: ");
+            	scanf("%f",&loan);
+            	printf("\nYour loan request has been recieved successfully!");
+				break;
+			}
             case 0:
                 printf("\nLogging out as %s\n",acc.username);
                 break;
@@ -324,20 +331,21 @@ void createAccount(){
 
     struct Details temp;
     temp.accountno = (rand()%99999)+9999;
-
+    
     printf("\nAccount number: %d\n",temp.accountno);
     printf("\nEnter Account username: ");
     getchar();
-    fgets(temp.username,100,stdin);
-    temp.username[strcspn(temp.username,"\n")]='\0';
+    fgets(temp.username, sizeof(temp.username), stdin);
+    temp.username[strcspn(temp.username,"\n")] = '\0';
     printf("\nEnter the PIN:");
     scanf("%d",&temp.password);
     printf("\nEnter balance: ");
     scanf("%f",&temp.balance);
     printf("\nEnter Country of Origin:");
-    scanf(" %s",temp.baseCountries);
+    fgets(temp.baseCountries, sizeof(temp.baseCountries), stdin);
+    temp.baseCountries[strcspn(temp.baseCountries, "\n")] = '\0';
 
-    FILE* fptr = fopen("details.csv","a");
+    FILE* fptr = fopen("details.csv","a");  //we used append because we want previous data to exist
 
     fprintf(fptr,"%d,%s,%d,%f,%s\n",
         temp.accountno,
@@ -398,8 +406,7 @@ void listAll_Accounts(){
             &account.balance,
             account.baseCountries
         );
-        // printf("Acc. No: %d\nAcc. Holder: %s\nBalance: %.2f\nCountry: %s\n",account.accountno,account.username,account.balance,account.password,account.baseCountries);
-        printf("%d\t\t%s\t%d\t\t%.3f\t\t%s\n",account.accountno,account.username,account.password,account.balance,account.baseCountries);
+        printf("\t%d\t\t%s\t%d\t\t%.3f\t\t%s\n",account.accountno,account.username,account.password,account.balance,account.baseCountries);
     }
     fclose(fptr);
 }
@@ -440,27 +447,26 @@ void listAccountDetails(int accountno){
 void adminlogin(){
     char username[50];
     int password;
-    printf("\t=====Logging in as ADMIN=====\t\nEnter ADMIN Username: ");
-    // getchar();
+    printf("\n\t=====Logging in as ADMIN=====\t\nEnter ADMIN Username: ");
     scanf("%s",username);
-    // getchar();
+    //getchar();
     printf("Enter ADMIN password: ");
     scanf("%d",&password);
 
     if(!(strcmp(username,"ADMIN"))){
         if(password==3060){
-            printf("\nLogged in As Admin\n");
+            printf("\nLogged in As Admin!\n");
         }
         else{
             printf("Wrong Admin Password,\nLogin (As ADMIN) Failed");
-            return ;
+            return;
         }
     }else{
         printf("Wrong Admin Username.,\nLogin (As ADMIN) Failed");
         return ;
     }
     
-    int choice = 0,accountno;
+    int choice=0, accountno;
 
     do{
         printf("\n1.Create Account.\n2.Delete Account.\n3.List All Accounts\n4.List Account Details.\n0.Exit\nEnter your choice: ");
@@ -492,7 +498,7 @@ void adminlogin(){
     }while(choice!=0);
 }
 
-char login(){
+void login(){
     int choice=0;
 
     do{
