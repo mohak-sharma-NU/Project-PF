@@ -14,6 +14,28 @@ struct Details{
     int accountno;
 };
 
+struct TransactionLog{
+    int accountno;
+    float amount;
+    char type[10];
+    long timestamp;
+};
+
+void recordTransaction(int accountno,float amount,const char* type){
+    FILE* lptr = fopen("transaction.log","a");
+
+    long currTime = (long)time(NULL);
+
+    fprintf(lptr,"%d,%f,%s, %ld.\n",
+        accountno,
+        amount,
+        type,
+        currTime
+    );
+
+    fclose(lptr);
+}
+
 int checkValidity(float amount,char transactionCountry[],char baseCountry[],int transactionsPerHour){
     if(!(strcmp(transactionCountry,baseCountry))){
         if(amount<LIMIT){
@@ -31,6 +53,37 @@ int checkValidity(float amount,char transactionCountry[],char baseCountry[],int 
         printf("\nTransaction country is not the same as Base country.\n");
         return 0;
     }
+}
+
+void genReportHrly(){
+    FILE* lptr = fopen("transaction.log","r");
+
+    if(lptr==NULL){
+        printf("\n Transaction file is Missing\n");
+        return;
+    }
+
+    long lastHour = time(NULL) - 3600;
+
+    char line[200];
+    struct TransactionLog lentry;
+    int count=0;
+
+    while(fgets(line,sizeof(line),lptr)){
+        int result = sscanf(line,"%d,%f,%[^,],%ld",
+            &lentry.accountno,
+            &lentry.amount,
+            lentry.type,
+            lentry.timestamp
+        );
+
+        if(result!=4) continue;
+
+        if(lentry.timestamp>=lastHour){
+            
+        }
+    }
+
 }
 
 void withdraw(int acc){
@@ -77,6 +130,9 @@ void withdraw(int acc){
                 if(amount<=search.balance){
                     search.balance -= amount;
                     transactionApproved = 1; // Set flag
+
+                    recordTransaction(search.accountno,amount,"DEPOSIT");
+
                     // newBalance = search.balance + amount;
                     fprintf(temp,"%d,%s,%d,%f,%s\n",
                         search.accountno,
@@ -105,29 +161,6 @@ void withdraw(int acc){
     remove("details.csv");
     rename("temp.csv","details.csv");
 
-    // Sleep(1000);
-
-
-    // if(remove("details.csv")!=0){
-    //     printf("Failed to delete details.csv.\n");
-    // }
-
-    // if(rename("temp.csv","details.csv")!=0){
-    //     printf("Failed to rename temp.csv to details.csv.\n");
-    // }
-
-    // // remove("details.csv");
-    // // rename("temp.csv","details.csv");
-
-    // // if (transactionApproved) {
-    // //     printf("\nDeposit Successful! New Balance: %.2f\n",search.balance);
-    // //     // printf("\nDeposit Successful! New Balance: %.2f\n",newBalance);
-
-    // // } else if (accountFound) {
-    // //     // If account found but not approved, the block message was printed inside the loop.
-    // // } else {
-    // //     printf("\nError: Account with ID %d not found in file.\n", acc);
-    // // }
 }
 
 void deposit(int acc){
@@ -175,6 +208,9 @@ void deposit(int acc){
                 search.balance += amount;
                 // newBalance = search.balance + amount;
                 transactionApproved = 1; // Set flag
+
+                recordTransaction(search.accountno,amount,"DEPOSIT");
+
                 fprintf(temp,"%d,%s,%d,%f,%s\n",
                     search.accountno,
                     search.username,
@@ -231,6 +267,7 @@ void userlogin(){
 
     printf("\nEnter your Username: ");
     fgets(username,sizeof(username),stdin);
+    
     username[strcspn(username,"\n")]='\0';
     printf("\nEnter your password: ");
     scanf(" %d",&password);
