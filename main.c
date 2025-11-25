@@ -179,8 +179,6 @@ void withdraw(int acc){
 
     remove("details.csv");
     rename("temp.csv","details.csv");
-
-  
 }
 
 void deposit(int acc){
@@ -263,7 +261,7 @@ void userlogin(){
     float amount;
 
     printf("\nEnter your Username: ");
-    getchar();
+    // getchar();
     fgets(username,sizeof(username),stdin);
     username[strcspn(username,"\n")]='\0';
     
@@ -522,6 +520,7 @@ void login(){
                 printf("Please enter a value number");
                 break;
         }
+
 
     }while(choice!=0);
 }
