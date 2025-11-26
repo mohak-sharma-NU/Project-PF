@@ -357,6 +357,7 @@ void createAccount(){
     scanf("%d",&temp.password);
     printf("\nEnter balance: ");
     scanf("%f",&temp.balance);
+    getchar();
     printf("\nEnter Country of Origin:");
     fgets(temp.baseCountries, sizeof(temp.baseCountries), stdin);
     temp.baseCountries[strcspn(temp.baseCountries, "\n")] = '\0';
@@ -551,6 +552,8 @@ void login(){
 
 int main(){
 
+    srand(time(NULL));
+    
     login();
 
     return 0;
