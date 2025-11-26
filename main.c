@@ -24,6 +24,11 @@ struct TransactionLog{
 void recordTransaction(int accountno,float amount,const char* type){
     FILE* lptr = fopen("transaction.log","a");
 
+    if(lptr==NULL){
+        printf("\n Transaction file is Missing\n");
+        return;
+    }
+
     long currTime = (long)time(NULL);
 
     fprintf(lptr,"%d,%f,%s, %ld.\n",
@@ -110,6 +115,10 @@ void withdraw(int acc){
     FILE* fptr = fopen("details.csv","r");
     FILE* temp = fopen("temp.csv","w");
 
+    if(fptr==NULL){
+        printf("\n Transaction file is Missing\n");
+        return;
+    }
     float amount;
     char transactionCountry[10];
     int transactionsPerHour=1;
@@ -186,6 +195,10 @@ void deposit(int acc){
     FILE* fptr = fopen("details.csv","r");
     FILE* temp = fopen("temp.csv","w");
 
+    if(fptr==NULL){
+        printf("\n Transaction file is Missing\n");
+        return;
+    }
     float amount;
     char transactionCountry[10];
     int transactionsPerHour=1;
@@ -269,6 +282,11 @@ void userlogin(){
     scanf(" %d",&password);
 
     FILE* fptr = fopen("details.csv","r");
+
+    if(fptr==NULL){
+        printf("\n Transaction file is Missing\n");
+        return;
+    }
 
     while(fgets(line,sizeof(line),fptr)){
         sscanf(line,"%d,%[^,],%d,%.2f,%s",
@@ -395,7 +413,9 @@ void listAll_Accounts(){
 
     char line[200];
 
-    printf("Acc. No.\tHoldername\tPassword\tBalance\tCountry\n");
+    // printf("Acc. No. || Holdername || Password || Balance || Country\n");
+    printf("%-12s %-20s %-12s %-12s %-15s\n",
+        "Acc. No.", "Holdername", "Password", "Balance", "Country");
     while(fgets(line,sizeof(line),fptr)){
         sscanf(line,"%d,%[^,],%d,%f,%s",
             &account.accountno,
@@ -404,7 +424,13 @@ void listAll_Accounts(){
             &account.balance,
             account.baseCountries
         );
-        printf("\t%d\t\t%s\t%d\t\t%.3f\t\t%s\n",account.accountno,account.username,account.password,account.balance,account.baseCountries);
+        printf("%-12d %-20s %-12d %-12.3f %-15s\n",
+            account.accountno,
+            account.username,
+            account.password,
+            account.balance,
+            account.baseCountries
+        );
     }
     fclose(fptr);
 }
@@ -467,7 +493,7 @@ void adminlogin(){
     int choice=0, accountno;
 
     do{
-        printf("\n1.Create Account.\n2.Delete Account.\n3.List All Accounts\n4.List Account Details.\n0.Exit\nEnter your choice: ");
+        printf("\n1.Create Account.\n2.Delete Account.\n3.List All Accounts\n4.List Account Details.\n5.Generate Hourly Report.\n0.Exit\nEnter your choice: ");
         scanf("%d",&choice);
         switch(choice){
             case 1:
@@ -486,6 +512,9 @@ void adminlogin(){
                 scanf("%d",&accountno);
                 listAccountDetails(accountno);
                 break;
+            case 5:
+                genReportHrly();
+                break;
             case 0:
                 printf("Logged out as ADMIN\n");
                 break;
@@ -500,7 +529,7 @@ void login(){
     int choice=0;
 
     do{
-        printf("\n1.Admin login.\n2.User login\n3.Generate Hourly Reports\n0.Exit\nMake your choice: ");
+        printf("\n1.Admin login.\n2.User login\n0.Exit\nMake your choice: ");
         scanf("%d",&choice);
         getchar();
         switch(choice){
@@ -513,15 +542,10 @@ void login(){
             case 2:
                 userlogin();
                 break;
-            case 3:
-                genReportHrly();
-                break;
             default:
                 printf("Please enter a value number");
                 break;
         }
-
-
     }while(choice!=0);
 }
 
